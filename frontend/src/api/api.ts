@@ -1,4 +1,4 @@
-import { UserInfo, ConversationRequest, Conversation, ChatMessage, CosmosDBHealth, CosmosDBStatus } from "./models";
+import { UserInfo, ConversationRequest, Conversation, ChatMessage, CosmosDBHealth, CosmosDBStatus, AppSettings } from "./models";
 import { chatHistorySampleData } from "../constants/chatHistory";
 
 export async function conversationApi(options: ConversationRequest, abortSignal: AbortSignal): Promise<Response> {
@@ -21,6 +21,17 @@ export async function getUserInfo(): Promise<UserInfo[]> {
     if (!response.ok) {
         console.log("No identity provider found. Access to chat will be blocked.")
         return [];
+    }
+
+    const payload = await response.json();
+    return payload;
+}
+
+export async function getAppSettings(): Promise<AppSettings | null> {
+    const response = await fetch('/settings');
+    if (!response.ok) {
+        console.log("Error loading settings.")
+        return null;
     }
 
     const payload = await response.json();

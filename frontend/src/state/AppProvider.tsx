@@ -1,6 +1,6 @@
 import React, { createContext, useReducer, ReactNode, useEffect } from 'react';
 import { appStateReducer } from './AppReducer';
-import { ChatHistoryLoadingState, CosmosDBHealth, historyList, historyEnsure, CosmosDBStatus } from '../api';
+import { ChatHistoryLoadingState, CosmosDBHealth, historyList, historyEnsure, CosmosDBStatus, AppSettings, getAppSettings } from '../api';
 import { Conversation } from '../api';
   
 export interface AppState {
@@ -10,6 +10,7 @@ export interface AppState {
     chatHistory: Conversation[] | null;
     filteredChatHistory: Conversation[] | null;
     currentChat: Conversation | null;
+    appSettings: AppSettings | null;
 }
 
 export type Action =
@@ -24,6 +25,7 @@ export type Action =
     | { type: 'DELETE_CHAT_HISTORY'}  // API Call
     | { type: 'DELETE_CURRENT_CHAT_MESSAGES', payload: string }  // API Call
     | { type: 'FETCH_CHAT_HISTORY', payload: Conversation[] | null }  // API Call
+    | { type: 'FETCH_APP_SETTINGS', payload: AppSettings | null}  // API Call
 
 const initialState: AppState = {
     isChatHistoryOpen: false,
@@ -34,7 +36,8 @@ const initialState: AppState = {
     isCosmosDBAvailable: {
         cosmosDB: false,
         status: CosmosDBStatus.NotConfigured,
-    }
+    },
+    appSettings: null
 };
 
 export const AppStateContext = createContext<{
@@ -50,6 +53,18 @@ type AppStateProviderProps = {
     const [state, dispatch] = useReducer(appStateReducer, initialState);
 
     useEffect(() => {
+        const fetchAppSettings = async () => {
+            const result = await getAppSettings().then((response) => {
+                if (response) {
+                    dispatch({ type: 'FETCH_APP_SETTINGS', payload: response });
+                    document.title = response.bot_name;
+                } else {
+                    dispatch({ type: 'FETCH_APP_SETTINGS', payload: null });
+                }
+            })
+        };
+        fetchAppSettings();
+
         // Check for cosmosdb config and fetch initial data here
         const fetchChatHistory = async (): Promise<Conversation[] | null> => {
             const result = await historyList().then((response) => {

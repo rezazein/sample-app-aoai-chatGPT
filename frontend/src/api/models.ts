@@ -71,6 +71,20 @@ export type UserInfo = {
     user_id: string;
 };
 
+export type AppSettings = {
+    logo_url: string;
+    bot_name: string;
+    welcome_title: string;
+    welcome_subtitle: string;
+    chatbox_placeholder: string;
+    show_references: boolean;
+    show_popup_button: boolean;
+    popup_button_text: string;
+    popup_button_icon: string;
+    popup_content: string;
+    enforce_auth: boolean;
+}
+
 export enum CosmosDBStatus {
     NotConfigured = "CosmosDB is not configured",
     NotWorking = "CosmosDB is not working",

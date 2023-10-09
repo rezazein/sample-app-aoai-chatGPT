@@ -1,10 +1,12 @@
 import { CommandBarButton, DefaultButton, IButtonProps, IButtonStyles, ICommandBarStyles } from "@fluentui/react";
 
 interface ShareButtonProps extends IButtonProps {
+    text: string;
+    icon: string;
     onClick: () => void;
   }
 
-export const ShareButton: React.FC<ShareButtonProps> = ({onClick}) => {
+export const ShareButton: React.FC<ShareButtonProps> = ({text, icon, onClick}) => {
     const shareButtonStyles: ICommandBarStyles & IButtonStyles = {
         root: {
           width: 86,
@@ -33,9 +35,9 @@ export const ShareButton: React.FC<ShareButtonProps> = ({onClick}) => {
       return (
         <CommandBarButton
                 styles={shareButtonStyles}
-                iconProps={{ iconName: 'Share' }}
+                iconProps={{ iconName: icon }}
                 onClick={onClick}
-                text="Share"
+                text={text}
         />
       )
 }

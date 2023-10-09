@@ -1,6 +1,5 @@
 import { Outlet, Link } from "react-router-dom";
 import styles from "./Layout.module.css";
-import Azure from "../../assets/Azure.svg";
 import { CopyRegular, ShareRegular } from "@fluentui/react-icons";
 import { CommandBarButton, Dialog, Stack, TextField, ICommandBarStyles, IButtonStyles, DefaultButton  } from "@fluentui/react";
 import { useContext, useEffect, useState } from "react";
@@ -74,19 +73,19 @@ const Layout = () => {
                 >
                     <Stack horizontal verticalAlign="center">
                         <img
-                            src={Azure}
+                            src={appStateContext?.state?.appSettings?.logo_url}
                             className={styles.headerIcon}
                             aria-hidden="true"
                         />
                         <Link to="/" className={styles.headerTitleContainer}>
-                            <h1 className={styles.headerTitle}>Azure AI</h1>
+                            <h1 className={styles.headerTitle}>{appStateContext?.state?.appSettings?.bot_name}</h1>
                         </Link>
                     </Stack>
                     <Stack horizontal tokens={{ childrenGap: 4 }}>
                             {(appStateContext?.state.isCosmosDBAvailable?.status !== CosmosDBStatus.NotConfigured) && 
                                 <HistoryButton onClick={handleHistoryClick} text={appStateContext?.state?.isChatHistoryOpen ? "Hide chat history" : "Show chat history"}/>    
                             }
-                            <ShareButton onClick={handleShareClick} />
+                            <ShareButton text={appStateContext?.state?.appSettings?.popup_button_text ?? ""} icon={appStateContext?.state?.appSettings?.popup_button_icon ?? ""} onClick={handleShareClick} />
                     </Stack>
 
                 </Stack>
@@ -106,27 +105,26 @@ const Layout = () => {
                             borderRadius: "8px",
                             maxHeight: '200px',
                             minHeight: '100px',
+                          },
+                          ['@media (min-width: 960px)']: {
+                            maxWidth: '800px',
+                            minWidth: '600px',
+                            background: "#FFFFFF",
+                            boxShadow: "0px 14px 28.8px rgba(0, 0, 0, 0.24), 0px 0px 8px rgba(0, 0, 0, 0.2)",
+                            borderRadius: "8px",
+                            maxHeight: '200px',
+                            minHeight: '100px',
                           }
                         }
                       }]
                 }}
                 dialogContentProps={{
-                    title: "Share the web app",
+                    title: appStateContext?.state?.appSettings?.popup_button_text ?? "",
                     showCloseButton: true
                 }}
             >
                 <Stack horizontal verticalAlign="center" style={{gap: "8px"}}>
-                    <TextField className={styles.urlTextBox} defaultValue={window.location.href} readOnly/>
-                    <div 
-                        className={styles.copyButtonContainer} 
-                        role="button" 
-                        tabIndex={0} 
-                        aria-label="Copy" 
-                        onClick={handleCopyClick}
-                        onKeyDown={e => e.key === "Enter" || e.key === " " ? handleCopyClick() : null}
-                    >
-                        <CopyRegular className={styles.copyButton} />
-                        <span className={styles.copyButtonText}>{copyText}</span>
+                    <div dangerouslySetInnerHTML={{__html: appStateContext?.state?.appSettings?.popup_content ?? ""}}>
                     </div>
                 </Stack>
             </Dialog>

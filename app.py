@@ -1,10 +1,10 @@
 import json
 import os
 import logging
-import requests
+import requests, io
 import openai
 from azure.identity import DefaultAzureCredential
-from flask import Flask, Response, request, jsonify, send_from_directory
+from flask import Flask, Response, request, jsonify, send_from_directory, send_file, abort
 from dotenv import load_dotenv
 
 from backend.auth.auth_utils import get_authenticated_user_details
@@ -27,7 +27,31 @@ def favicon():
 def assets(path):
     return send_from_directory("static/assets", path)
 
+@app.route("/settings")
+def settings():
+    default_settings_str = '''{"bot_name": "My AI", 
+                            "logo_url": "https://finetunetest.blob.core.windows.net/files/bot_icon.svg", 
+                            "welcome_title": "Welcome!", 
+                            "welcome_subtitle": "Start the conversation by asking your first question.", 
+                            "chatbox_placeholder": "Type your question...", 
+                            "show_references": true, 
+                            "show_popup_button": true,
+                            "popup_button_text": "About",
+                            "popup_button_icon": "Info",
+                            "popup_content": "<p>Developed with &#10084; in Canada</p>",
+                            "enforce_auth": true}'''
+    settings_str = os.environ.get("STATIC_APP_SETTINGS", default_settings_str)
+    return settings_str
 
+@app.route("/file/<config_name>")
+def serve_file_from_config(config_name):
+    url = os.environ.get(f"FILE_{config_name}", "")
+    if url == "":
+        abort(404)
+    file = requests.get(url)
+    file_name = os.path.basename(url)
+    return send_file(io.BytesIO(file.content), download_name=file_name)
+    
 # ACS Integration Settings
 AZURE_SEARCH_SERVICE = os.environ.get("AZURE_SEARCH_SERVICE")
 AZURE_SEARCH_INDEX = os.environ.get("AZURE_SEARCH_INDEX")
